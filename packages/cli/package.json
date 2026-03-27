@@ -1,0 +1,33 @@
+{
+  "name": "@agent-replay/cli",
+  "version": "0.1.0",
+  "description": "CLI for Agent Replay - record, replay, and analyze AI agent traces",
+  "license": "PolyForm-Shield-1.0.0",
+  "author": "Zijian Ni (倪子健)",
+  "type": "module",
+  "bin": {
+    "agent-replay": "./dist/index.mjs"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@agent-replay/core": "workspace:*",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "ora": "^8.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  }
+}

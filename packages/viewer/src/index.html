@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Replay &mdash; Trace Viewer</title>
+    <meta name="description" content="Web-based trace viewer for AI agent debugging" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1f50d;</text></svg>" />
+    <link rel="stylesheet" href="./styles/main.css" />
+    <link rel="stylesheet" href="./styles/timeline.css" />
+    <link rel="stylesheet" href="./styles/inspector.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <span class="logo">Agent Replay</span>
+          <span class="header-separator"></span>
+          <span class="header-subtitle">Trace Viewer</span>
+        </div>
+        <div class="header-actions">
+          <button id="search-trigger" class="header-btn" title="Search (Ctrl+K)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7" cy="7" r="4.5"/>
+              <line x1="10.2" y1="10.2" x2="14" y2="14"/>
+            </svg>
+            <span class="search-hint">Search</span>
+            <kbd>Ctrl K</kbd>
+          </button>
+          <button id="file-upload-btn" class="header-btn" title="Load .jsonl trace file">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 10v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3"/>
+              <polyline points="8 2 8 10"/>
+              <polyline points="5 5 8 2 11 5"/>
+            </svg>
+            <span>Load .jsonl</span>
+          </button>
+          <button id="theme-toggle" class="header-btn" title="Toggle theme">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="8" r="3.5"/>
+              <line x1="8" y1="1" x2="8" y2="3"/>
+              <line x1="8" y1="13" x2="8" y2="15"/>
+              <line x1="1" y1="8" x2="3" y2="8"/>
+              <line x1="13" y1="8" x2="15" y2="8"/>
+              <line x1="3.05" y1="3.05" x2="4.46" y2="4.46"/>
+              <line x1="11.54" y1="11.54" x2="12.95" y2="12.95"/>
+              <line x1="3.05" y1="12.95" x2="4.46" y2="11.54"/>
+              <line x1="11.54" y1="4.46" x2="12.95" y2="3.05"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Layout -->
+      <main class="app-main">
+        <!-- Left Sidebar: Trace List -->
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-header">
+            <h2 class="sidebar-title">Traces</h2>
+          </div>
+          <div class="sidebar-search">
+            <input
+              type="text"
+              id="trace-search"
+              class="sidebar-search-input"
+              placeholder="Filter traces..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+          </div>
+          <nav class="trace-list" id="trace-list" role="listbox" aria-label="Trace list">
+            <!-- Populated by JS -->
+          </nav>
+        </aside>
+
+        <!-- Center: Timeline -->
+        <section class="timeline-panel" id="timeline-panel">
+          <div class="timeline-header">
+            <h2 class="panel-title" id="timeline-title">Timeline</h2>
+            <div class="timeline-meta" id="timeline-meta"></div>
+          </div>
+          <div class="timeline-container" id="timeline-container" role="list" aria-label="Step timeline">
+            <!-- Populated by JS -->
+          </div>
+        </section>
+
+        <!-- Right: Inspector -->
+        <aside class="inspector-panel" id="inspector-panel">
+          <div class="inspector-header">
+            <h2 class="panel-title">Inspector</h2>
+          </div>
+          <div class="inspector-content" id="inspector-content">
+            <div class="inspector-empty">
+              <p class="inspector-empty-text">Select a step to inspect</p>
+              <p class="inspector-empty-hint">Use <kbd>j</kbd>/<kbd>k</kbd> to navigate, <kbd>Enter</kbd> to expand</p>
+            </div>
+          </div>
+        </aside>
+      </main>
+
+      <!-- Footer: Cost Panel -->
+      <footer class="cost-footer" id="cost-footer">
+        <!-- Populated by JS -->
+      </footer>
+    </div>
+
+    <!-- Drop zone overlay -->
+    <div class="drop-overlay" id="drop-overlay" hidden>
+      <div class="drop-overlay-content">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <p>Drop .jsonl trace file to load</p>
+      </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="search-overlay" id="search-overlay" role="dialog" aria-modal="true" aria-label="Search steps" hidden>
+      <div class="search-modal">
+        <div class="search-modal-header">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="7" cy="7" r="4.5"/>
+            <line x1="10.2" y1="10.2" x2="14" y2="14"/>
+          </svg>
+          <input
+            type="text"
+            id="search-input"
+            class="search-modal-input"
+            placeholder="Search steps by name, type, or model..."
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <kbd class="search-modal-esc">Esc</kbd>
+        </div>
+        <div class="search-modal-results" id="search-results">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="file-input" accept=".jsonl,.json" hidden />
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,285 @@
+/* ==========================================================================
+   Timeline Component Styles
+   ========================================================================== */
+
+/* Timeline connector line */
+.timeline-container {
+  position: relative;
+}
+
+.timeline-container::before {
+  content: "";
+  position: absolute;
+  top: var(--space-4);
+  bottom: var(--space-4);
+  left: calc(var(--space-5) + 11px);
+  width: 1px;
+  background: var(--color-border);
+  pointer-events: none;
+}
+
+/* Step card */
+.step-card {
+  position: relative;
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 3px solid var(--color-custom);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+  outline: none;
+}
+
+.step-card:hover {
+  background: var(--color-surface-raised);
+  border-color: var(--color-border);
+}
+
+.step-card:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.step-card[aria-selected="true"] {
+  background: var(--color-surface-raised);
+  border-color: var(--color-accent);
+  box-shadow:
+    0 0 0 1px var(--color-accent),
+    0 2px 8px rgba(99, 102, 241, 0.1);
+}
+
+/* Step type border colors */
+.step-card[data-type="llm_call"] {
+  border-left-color: var(--color-llm);
+}
+
+.step-card[data-type="tool_call"],
+.step-card[data-type="tool_result"] {
+  border-left-color: var(--color-tool);
+}
+
+.step-card[data-type="decision"] {
+  border-left-color: var(--color-decision);
+}
+
+.step-card[data-type="error"] {
+  border-left-color: var(--color-error);
+}
+
+.step-card[data-type="custom"] {
+  border-left-color: var(--color-custom);
+}
+
+/* Timeline dot */
+.step-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--color-custom);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.step-card[data-type="llm_call"] .step-dot { background: var(--color-llm); }
+.step-card[data-type="tool_call"] .step-dot,
+.step-card[data-type="tool_result"] .step-dot { background: var(--color-tool); }
+.step-card[data-type="decision"] .step-dot { background: var(--color-decision); }
+.step-card[data-type="error"] .step-dot { background: var(--color-error); }
+
+/* Nesting indentation */
+.step-card[data-depth="1"] { margin-left: 16px; }
+.step-card[data-depth="2"] { margin-left: 32px; }
+.step-card[data-depth="3"] { margin-left: 48px; }
+.step-card[data-depth="4"] { margin-left: 64px; }
+.step-card[data-depth="5"] { margin-left: 80px; }
+
+/* Step content */
+.step-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.step-name {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Type badge */
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  height: 18px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+
+.step-badge--llm_call {
+  color: var(--color-llm);
+  background: var(--color-llm-bg);
+}
+
+.step-badge--tool_call,
+.step-badge--tool_result {
+  color: var(--color-tool);
+  background: var(--color-tool-bg);
+}
+
+.step-badge--decision {
+  color: var(--color-decision);
+  background: var(--color-decision-bg);
+}
+
+.step-badge--error {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+.step-badge--custom {
+  color: var(--color-custom);
+  background: var(--color-custom-bg);
+}
+
+/* Step metadata row */
+.step-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-faint);
+}
+
+.step-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.step-meta-icon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.6;
+}
+
+/* Duration bar (optional visual) */
+.step-duration-bar {
+  height: 2px;
+  background: var(--color-border);
+  border-radius: 1px;
+  margin-top: var(--space-1);
+  overflow: hidden;
+}
+
+.step-duration-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width var(--transition-slow);
+}
+
+.step-card[data-type="llm_call"] .step-duration-fill { background: var(--color-llm); }
+.step-card[data-type="tool_call"] .step-duration-fill,
+.step-card[data-type="tool_result"] .step-duration-fill { background: var(--color-tool); }
+.step-card[data-type="decision"] .step-duration-fill { background: var(--color-decision); }
+.step-card[data-type="error"] .step-duration-fill { background: var(--color-error); }
+.step-card[data-type="custom"] .step-duration-fill { background: var(--color-custom); }
+
+/* Model label */
+.step-model {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-faint);
+  font-family: var(--font-mono);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Error indicator */
+.step-error-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--color-error);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+/* Children toggle */
+.step-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-faint);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.step-toggle:hover {
+  background: var(--color-surface-overlay);
+  color: var(--color-text);
+}
+
+.step-toggle svg {
+  transition: transform var(--transition-fast);
+}
+
+.step-toggle[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+
+/* Children container */
+.step-children {
+  overflow: hidden;
+  transition: max-height var(--transition-slow);
+}
+
+.step-children[aria-hidden="true"] {
+  max-height: 0;
+}
+
+/* Empty state */
+.timeline-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: var(--space-3);
+  color: var(--color-text-faint);
+  text-align: center;
+  padding: var(--space-10);
+}
+
+.timeline-empty-icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0.3;
+}

@@ -1,0 +1,68 @@
+/* ==========================================================================
+   Agent Replay — Additional Styles
+   Drop zone, file upload, keyboard hints
+   ========================================================================== */
+
+/* ---------- Drop zone overlay ---------- */
+.drop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 11, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: overlay-in 150ms ease;
+}
+
+.drop-overlay[hidden] {
+  display: none;
+}
+
+.drop-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--color-text-muted);
+  padding: var(--space-10);
+  border: 2px dashed var(--color-accent);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  animation: drop-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes drop-pulse {
+  0%, 100% { border-color: var(--color-accent); }
+  50% { border-color: var(--color-accent-hover); }
+}
+
+.drop-overlay-content svg {
+  color: var(--color-accent);
+  opacity: 0.6;
+}
+
+.drop-overlay-content p {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+}
+
+/* ---------- File upload button ---------- */
+#file-upload-btn:active {
+  transform: scale(0.97);
+}
+
+/* ---------- Keyboard hints in footer ---------- */
+.keyboard-hints {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-faint);
+}
+
+.keyboard-hints kbd {
+  margin: 0 2px;
+}

@@ -1,0 +1,51 @@
+{
+  "name": "@agent-replay/core",
+  "version": "0.1.0",
+  "description": "Core recording and replay engine for AI agent traces",
+  "license": "PolyForm-Shield-1.0.0",
+  "author": "Zijian Ni (倪子健)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicepkg/agent-replay.git",
+    "directory": "packages/core"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^10.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  },
+  "peerDependencies": {
+    "better-sqlite3": ">=9.0.0",
+    "openai": ">=4.0.0",
+    "@anthropic-ai/sdk": ">=0.20.0"
+  },
+  "peerDependenciesMeta": {
+    "better-sqlite3": { "optional": true },
+    "openai": { "optional": true },
+    "@anthropic-ai/sdk": { "optional": true }
+  }
+}
