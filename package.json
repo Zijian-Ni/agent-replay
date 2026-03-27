@@ -3,7 +3,15 @@
   "version": "0.2.0",
   "private": true,
   "description": "A monorepo for recording and replaying AI agent sessions",
-  "keywords": ["ai", "agent", "replay", "recording", "llm", "claude", "openai"],
+  "keywords": [
+    "ai",
+    "agent",
+    "replay",
+    "recording",
+    "llm",
+    "claude",
+    "openai"
+  ],
   "author": "Zijian Ni (倪子健)",
   "license": "PolyForm-Shield-1.0.0",
   "repository": {
@@ -43,5 +51,6 @@
     "turbo": "^2.0.0",
     "typescript": "^5.4.0",
     "vitest": "^2.0.0"
-  }
+  },
+  "packageManager": "pnpm@9.15.0"
 }
