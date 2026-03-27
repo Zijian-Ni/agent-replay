@@ -118,14 +118,43 @@ export interface RecorderOptions {
   metadata?: Record<string, unknown>;
 }
 
+/** Conditional breakpoint for replay */
+export interface Breakpoint {
+  /** Breakpoint type */
+  type: "cost" | "error" | "tool" | "model" | "custom";
+  /** For cost breakpoints: stop when cumulative cost exceeds this */
+  costThreshold?: number;
+  /** For tool breakpoints: stop when this tool is called */
+  toolName?: string;
+  /** For model breakpoints: stop when this model is used */
+  modelName?: string;
+  /** Custom predicate */
+  predicate?: (step: Step, index: number) => boolean;
+  /** Breakpoint label */
+  label?: string;
+}
+
+/** Checkpoint: a snapshot of replay state */
+export interface Checkpoint {
+  index: number;
+  timestamp: number;
+  label?: string;
+}
+
 /** Configuration for the replayer */
 export interface ReplayerOptions {
   /** Whether to make real API calls or use recorded responses */
   mock?: boolean;
-  /** Playback speed multiplier */
+  /** Playback speed multiplier (1x, 2x, 5x, 0 for instant) */
   speed?: number;
   /** Step callback */
   onStep?: (step: Step, index: number) => void | Promise<void>;
+  /** Conditional breakpoints */
+  breakpoints?: Breakpoint[];
+  /** Model substitution map (e.g., swap gpt-4 for gpt-3.5 in replay) */
+  modelSubstitutions?: Record<string, string>;
+  /** Callback when a breakpoint is hit */
+  onBreakpoint?: (breakpoint: Breakpoint, step: Step, index: number) => void | Promise<void>;
 }
 
 /** Storage backend interface */

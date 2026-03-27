@@ -66,3 +66,110 @@
 .keyboard-hints kbd {
   margin: 0 2px;
 }
+
+/* ---------- View tabs ---------- */
+.view-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 2px;
+}
+
+.view-tab {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  padding: 4px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.view-tab:hover {
+  color: var(--color-text);
+  background: var(--color-surface-hover);
+}
+
+.view-tab.active {
+  color: var(--color-text);
+  background: var(--color-bg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* ---------- Flame graph ---------- */
+.flame-graph {
+  font-family: var(--font-mono, monospace);
+}
+
+/* ---------- Loading skeleton ---------- */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.skeleton {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* ---------- Smooth transitions ---------- */
+.step-card,
+.trace-item,
+.inspector-content {
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* ---------- Mobile responsive ---------- */
+@media (max-width: 768px) {
+  .app-main {
+    flex-direction: column !important;
+  }
+
+  .sidebar {
+    width: 100% !important;
+    max-height: 200px;
+    border-right: none !important;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .inspector-panel {
+    width: 100% !important;
+    max-height: 40vh;
+    border-left: none !important;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .timeline-panel {
+    min-height: 40vh;
+  }
+
+  .view-tabs {
+    flex-wrap: wrap;
+  }
+
+  #minimap-container {
+    display: none;
+  }
+
+  .header-actions span:not(.search-hint) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    gap: var(--space-1) !important;
+  }
+
+  .header-btn span {
+    display: none;
+  }
+
+  .header-btn kbd {
+    display: none;
+  }
+}

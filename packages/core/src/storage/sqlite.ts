@@ -1,11 +1,11 @@
 import type { TraceStorage, SerializedTrace, TraceId } from "../types.js";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 declare const require: any;
 
 /** SQLite-based trace storage (requires better-sqlite3 peer dependency) */
 export class SqliteStorage implements TraceStorage {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   private db: any;
 
   constructor(dbPath?: string) {
@@ -44,7 +44,7 @@ export class SqliteStorage implements TraceStorage {
 
   async list(): Promise<TraceId[]> {
     const rows = this.db.prepare("SELECT id FROM traces ORDER BY created_at DESC").all();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     return rows.map((r: any) => r.id);
   }
 
@@ -56,7 +56,7 @@ export class SqliteStorage implements TraceStorage {
     const rows = this.db
       .prepare("SELECT data FROM traces WHERE name LIKE ? OR id LIKE ?")
       .all(`%${query}%`, `%${query}%`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     return rows.map((r: any) => JSON.parse(r.data));
   }
 

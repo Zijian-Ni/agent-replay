@@ -1,9 +1,19 @@
 {
   "name": "@agent-replay/cli",
-  "version": "0.1.0",
-  "description": "CLI for Agent Replay - record, replay, and analyze AI agent traces",
+  "version": "0.2.0",
+  "description": "CLI for Agent Replay — record, replay, serve, compress, validate, merge, and analyze AI agent traces",
   "license": "PolyForm-Shield-1.0.0",
   "author": "Zijian Ni (倪子健)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicepkg/agent-replay.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/nicepkg/agent-replay/issues"
+  },
+  "homepage": "https://github.com/nicepkg/agent-replay/tree/main/packages/cli#readme",
+  "keywords": ["ai", "agent", "trace", "cli", "debugger", "replay", "record"],
   "type": "module",
   "bin": {
     "agent-replay": "./dist/index.mjs"
@@ -29,5 +39,8 @@
   "devDependencies": {
     "tsup": "^8.0.0",
     "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

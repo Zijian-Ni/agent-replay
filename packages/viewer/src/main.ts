@@ -12,7 +12,19 @@ import { initKeyboard } from "./components/keyboard.js";
 import { initTheme, toggleTheme } from "./utils/theme.js";
 import { formatDuration, formatCost, formatDate } from "./utils/format.js";
 import { loadSampleTraces, loadFileAsTraces, buildCostBreakdown } from "./trace-loader.js";
+import { renderFlameGraph } from "./components/flame-graph.js";
+import { renderHeatmap } from "./components/heatmap.js";
+import { renderMinimap, updateMinimapViewport } from "./components/minimap.js";
+import { showToast } from "./components/toast.js";
+import { toggleShortcutsPanel, hideShortcutsPanel } from "./components/shortcuts-panel.js";
+import { downloadHtml } from "./components/export-html.js";
 import type { Trace } from "./types.js";
+
+/* ================================================================== */
+/*  Types                                                              */
+/* ================================================================== */
+
+type ViewMode = "timeline" | "flamegraph" | "heatmap";
 
 /* ================================================================== */
 /*  Initialize app                                                     */
@@ -21,8 +33,15 @@ import type { Trace } from "./types.js";
 function init(): void {
   initTheme();
 
+  // Listen for system theme changes
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    const stored = localStorage.getItem("agent-replay-theme");
+    if (!stored) initTheme();
+  });
+
   let traces: Trace[] = loadSampleTraces();
   let activeTrace: Trace = traces[0]!;
+  let currentView: ViewMode = "timeline";
 
   // --- DOM references ---
   const traceListEl = document.getElementById("trace-list")!;
@@ -37,6 +56,27 @@ function init(): void {
   const fileUploadBtn = document.getElementById("file-upload-btn");
   const fileInput = document.getElementById("file-input") as HTMLInputElement | null;
   const dropOverlay = document.getElementById("drop-overlay");
+  const minimapContainer = document.getElementById("minimap-container");
+  const exportBtn = document.getElementById("export-btn");
+
+  // View tab buttons
+  const viewTabs = document.querySelectorAll<HTMLElement>("[data-view-tab]");
+
+  // --- View switching ---
+  function switchView(view: ViewMode): void {
+    currentView = view;
+    viewTabs.forEach((tab) => {
+      tab.classList.toggle("active", tab.dataset.viewTab === view);
+    });
+    loadTrace(activeTrace);
+  }
+
+  viewTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const view = tab.dataset.viewTab as ViewMode;
+      if (view) switchView(view);
+    });
+  });
 
   // --- Render trace list ---
   function renderTraceList(filter = ""): void {
@@ -91,10 +131,22 @@ function init(): void {
       </div>
     `;
 
-    // Timeline — Step type is structurally compatible with the timeline component's local Step type
-    renderTimeline(timelineContainer, trace.steps as never[], (step: unknown) => {
-      renderInspector(inspectorContent, step as never);
-    });
+    // Render based on view mode
+    if (currentView === "timeline") {
+      renderTimeline(timelineContainer, trace.steps as never[], (step: unknown) => {
+        renderInspector(inspectorContent, step as never);
+      });
+    } else if (currentView === "flamegraph") {
+      const traceStart = trace.startedAt.getTime();
+      const traceDuration = trace.duration ?? 0;
+      renderFlameGraph(timelineContainer, trace.steps as never[], traceDuration, traceStart, (step: unknown) => {
+        renderInspector(inspectorContent, step as never);
+      });
+    } else if (currentView === "heatmap") {
+      renderHeatmap(timelineContainer, trace.steps as never[], (step: unknown) => {
+        renderInspector(inspectorContent, step as never);
+      });
+    }
 
     // Cost footer
     const breakdown = buildCostBreakdown(trace.steps);
@@ -104,6 +156,20 @@ function init(): void {
     initSearch(trace.steps as never[], (stepId: string | null) => {
       if (stepId) highlightStep(stepId);
     });
+
+    // Minimap
+    if (minimapContainer) {
+      renderMinimap(minimapContainer, trace.steps as never[], (index: number) => {
+        setSelectedIndex(index);
+      });
+
+      // Wire up minimap viewport tracking
+      timelineContainer.addEventListener("scroll", () => {
+        const scrollRatio = timelineContainer.scrollTop / (timelineContainer.scrollHeight || 1);
+        const viewRatio = timelineContainer.clientHeight / (timelineContainer.scrollHeight || 1);
+        updateMinimapViewport(minimapContainer, scrollRatio, viewRatio);
+      });
+    }
   }
 
   // --- Add traces from file ---
@@ -113,6 +179,7 @@ function init(): void {
     activeTrace = loaded[0]!;
     renderTraceList(traceSearchInput.value);
     loadTrace(activeTrace);
+    showToast({ message: `Loaded ${loaded.length} trace(s)`, type: "success" });
   }
 
   // --- Wire sidebar filter ---
@@ -121,10 +188,21 @@ function init(): void {
   });
 
   // --- Wire theme toggle ---
-  themeToggle.addEventListener("click", () => toggleTheme());
+  themeToggle.addEventListener("click", () => {
+    const newTheme = toggleTheme();
+    showToast({ message: `Switched to ${newTheme} theme`, type: "info", duration: 1500 });
+  });
 
   // --- Wire search trigger ---
   searchTrigger.addEventListener("click", () => openSearch());
+
+  // --- Wire export button ---
+  if (exportBtn) {
+    exportBtn.addEventListener("click", () => {
+      downloadHtml(activeTrace as never);
+      showToast({ message: "Trace exported as HTML", type: "success" });
+    });
+  }
 
   // --- Wire file upload ---
   if (fileUploadBtn && fileInput) {
@@ -138,7 +216,7 @@ function init(): void {
           addTracesFromFile(loaded);
         }
       } catch (err) {
-        console.error("Failed to load file:", err);
+        showToast({ message: `Failed to load file: ${(err as Error).message}`, type: "error" });
       }
       fileInput.value = "";
     });
@@ -179,7 +257,7 @@ function init(): void {
           }
         }
       } catch (err) {
-        console.error("Failed to load dropped file:", err);
+        showToast({ message: `Failed to load dropped file: ${(err as Error).message}`, type: "error" });
       }
     });
   }
@@ -205,6 +283,31 @@ function init(): void {
     },
     onOpenSearch: () => openSearch(),
     onCloseSearch: () => closeSearch(),
+  });
+
+  // --- Additional keyboard shortcuts ---
+  document.addEventListener("keydown", (e) => {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+    if (e.key === "?") {
+      e.preventDefault();
+      toggleShortcutsPanel();
+    }
+    if (e.key === "Escape") {
+      hideShortcutsPanel();
+    }
+    if (e.key === "t" && !e.ctrlKey && !e.metaKey) {
+      toggleTheme();
+    }
+    if (e.key === "1") switchView("timeline");
+    if (e.key === "2") switchView("flamegraph");
+    if (e.key === "3") switchView("heatmap");
+    if (e.key === "f" && !e.ctrlKey && !e.metaKey) {
+      switchView(currentView === "flamegraph" ? "timeline" : "flamegraph");
+    }
+    if (e.key === "h" && !e.ctrlKey && !e.metaKey) {
+      switchView(currentView === "heatmap" ? "timeline" : "heatmap");
+    }
   });
 
   // --- Initial render ---

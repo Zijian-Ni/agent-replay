@@ -1,6 +1,6 @@
 {
   "name": "agent-replay",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "A monorepo for recording and replaying AI agent sessions",
   "keywords": ["ai", "agent", "replay", "recording", "llm", "claude", "openai"],

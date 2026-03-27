@@ -7,11 +7,18 @@ export { serializeTrace, deserializeTrace, serializeStep, deserializeStep, compu
 
 // Storage
 export { createStorage, JsonlStorage, MemoryStorage, SqliteStorage } from "./storage/index.js";
+export { CompressedJsonlStorage, compressFile, decompressFile, compressDirectory, compressBuffer, decompressBuffer, isCompressed, readAutoDetect } from "./storage/compression.js";
 
 // Interceptors
 export { interceptOpenAI } from "./interceptors/openai.js";
 export { interceptAnthropic } from "./interceptors/anthropic.js";
 export { interceptFunction } from "./interceptors/generic.js";
+export { interceptOpenAIStream, interceptAnthropicStream, reconstructFromChunks } from "./interceptors/streaming.js";
+
+// Plugins
+export { PluginRegistry, createPlugin, globalRegistry } from "./plugins/index.js";
+export { langchainPlugin } from "./plugins/langchain.js";
+export { crewaiPlugin } from "./plugins/crewai.js";
 
 // Analysis
 export { diffTraces } from "./analysis/diff.js";
@@ -46,4 +53,16 @@ export type {
   JsonlRecord,
   JsonlRecordType,
   Interceptor,
+  Breakpoint,
+  Checkpoint,
 } from "./types.js";
+
+export type {
+  Plugin,
+  PluginHooks,
+} from "./plugins/index.js";
+
+export type {
+  StreamChunk,
+  StreamAccumulator,
+} from "./interceptors/streaming.js";

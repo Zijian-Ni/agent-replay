@@ -29,6 +29,14 @@
             <span class="search-hint">Search</span>
             <kbd>Ctrl K</kbd>
           </button>
+          <button id="export-btn" class="header-btn" title="Export as shareable HTML">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 10v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3"/>
+              <polyline points="8 10 8 2"/>
+              <polyline points="5 5 8 2 11 5"/>
+            </svg>
+            <span>Export</span>
+          </button>
           <button id="file-upload-btn" class="header-btn" title="Load .jsonl trace file">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 10v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3"/>
@@ -37,7 +45,7 @@
             </svg>
             <span>Load .jsonl</span>
           </button>
-          <button id="theme-toggle" class="header-btn" title="Toggle theme">
+          <button id="theme-toggle" class="header-btn" title="Toggle theme (t)">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="8" cy="8" r="3.5"/>
               <line x1="8" y1="1" x2="8" y2="3"/>
@@ -78,11 +86,23 @@
         <!-- Center: Timeline -->
         <section class="timeline-panel" id="timeline-panel">
           <div class="timeline-header">
-            <h2 class="panel-title" id="timeline-title">Timeline</h2>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <h2 class="panel-title" id="timeline-title">Timeline</h2>
+              <div class="view-tabs">
+                <button class="view-tab active" data-view-tab="timeline" title="Timeline view (1)">Timeline</button>
+                <button class="view-tab" data-view-tab="flamegraph" title="Flame graph (2)">Flame Graph</button>
+                <button class="view-tab" data-view-tab="heatmap" title="Token heatmap (3)">Heatmap</button>
+              </div>
+            </div>
             <div class="timeline-meta" id="timeline-meta"></div>
           </div>
-          <div class="timeline-container" id="timeline-container" role="list" aria-label="Step timeline">
-            <!-- Populated by JS -->
+          <div style="display:flex;flex:1;overflow:hidden;">
+            <div class="timeline-container" id="timeline-container" role="list" aria-label="Step timeline" style="flex:1;overflow:auto;">
+              <!-- Populated by JS -->
+            </div>
+            <div id="minimap-container" style="flex-shrink:0;">
+              <!-- Minimap rendered by JS -->
+            </div>
           </div>
         </section>
 

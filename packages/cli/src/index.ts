@@ -4,13 +4,17 @@ import { viewCommand } from "./commands/view.js";
 import { diffCommand } from "./commands/diff.js";
 import { statsCommand } from "./commands/stats.js";
 import { exportCommand } from "./commands/export.js";
+import { serveCommand } from "./commands/serve.js";
+import { compressCommand } from "./commands/compress.js";
+import { validateCommand } from "./commands/validate.js";
+import { mergeCommand } from "./commands/merge.js";
 
 const program = new Command();
 
 program
   .name("agent-replay")
   .description("Record, replay, and analyze AI agent traces")
-  .version("0.1.0");
+  .version("0.2.0");
 
 program
   .command("record")
@@ -58,6 +62,41 @@ program
   .option("-o, --output <file>", "output file path")
   .action(async (file: string, options: { format?: string; output?: string }) => {
     await exportCommand(file, options);
+  });
+
+program
+  .command("serve")
+  .description("Serve the trace viewer with a live API")
+  .option("-p, --port <port>", "port to listen on", "3000")
+  .option("-d, --dir <dir>", "trace files directory", "./traces")
+  .action(async (options: { port?: string; dir?: string }) => {
+    await serveCommand(options);
+  });
+
+program
+  .command("compress")
+  .description("Compress trace files with gzip (reduces ~80% disk usage)")
+  .argument("<path>", "trace file or directory to compress")
+  .action(async (path: string) => {
+    await compressCommand(path);
+  });
+
+program
+  .command("validate")
+  .description("Validate a trace file schema")
+  .argument("<file>", "trace file (JSONL) to validate")
+  .action(async (file: string) => {
+    await validateCommand(file);
+  });
+
+program
+  .command("merge")
+  .description("Merge multiple trace files into one")
+  .argument("<files...>", "trace files (JSONL) to merge (at least 2)")
+  .option("-o, --output <file>", "output file path")
+  .option("-n, --name <name>", "name for the merged trace")
+  .action(async (files: string[], options: { output?: string; name?: string }) => {
+    await mergeCommand(files, options);
   });
 
 program.parse();

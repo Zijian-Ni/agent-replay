@@ -1,6 +1,6 @@
 {
   "name": "@agent-replay/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Core recording and replay engine for AI agent traces",
   "license": "PolyForm-Shield-1.0.0",
   "author": "Zijian Ni (倪子健)",
@@ -25,7 +25,7 @@
     "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "lint": "eslint src/",
+    "lint": "eslint src/ --config ../../eslint.config.mjs",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
