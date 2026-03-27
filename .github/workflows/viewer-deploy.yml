@@ -1,5 +1,6 @@
 name: Deploy Viewer
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths: ['packages/viewer/**']
