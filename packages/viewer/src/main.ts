@@ -1,7 +1,7 @@
 /**
  * Agent Replay — Trace Viewer
  * Main entry point. Initializes all components, loads demo data,
- * and wires keyboard navigation and file upload.
+ * wires keyboard navigation, file upload, resize handles, and interactions.
  */
 
 import { renderTimeline, highlightStep, getSelectedIndex, setSelectedIndex, getStepCount } from "./components/timeline.js";
@@ -18,6 +18,8 @@ import { renderMinimap, updateMinimapViewport } from "./components/minimap.js";
 import { showToast } from "./components/toast.js";
 import { toggleShortcutsPanel, hideShortcutsPanel } from "./components/shortcuts-panel.js";
 import { downloadHtml } from "./components/export-html.js";
+import { initResizeHandle } from "./components/resize.js";
+import { initContextMenu } from "./components/context-menu.js";
 import type { Trace } from "./types.js";
 
 /* ================================================================== */
@@ -58,15 +60,36 @@ function init(): void {
   const dropOverlay = document.getElementById("drop-overlay");
   const minimapContainer = document.getElementById("minimap-container");
   const exportBtn = document.getElementById("export-btn");
+  const shortcutsBtn = document.getElementById("shortcuts-btn");
+  const headerSubtitle = document.getElementById("header-subtitle");
+  const sidebar = document.getElementById("sidebar") as HTMLElement;
+  const inspectorPanel = document.getElementById("inspector-panel") as HTMLElement;
 
   // View tab buttons
   const viewTabs = document.querySelectorAll<HTMLElement>("[data-view-tab]");
+
+  // --- Initialize drag-to-resize panels ---
+  initResizeHandle("resize-sidebar", sidebar, "left", 180, 400);
+  initResizeHandle("resize-inspector", inspectorPanel, "right", 260, 600);
+
+  // --- Initialize right-click context menu on timeline ---
+  initContextMenu(timelineContainer);
+
+  // --- Update page title ---
+  function updatePageTitle(traceName: string): void {
+    document.title = `${traceName} — Agent Replay`;
+    if (headerSubtitle) {
+      headerSubtitle.textContent = traceName;
+    }
+  }
 
   // --- View switching ---
   function switchView(view: ViewMode): void {
     currentView = view;
     viewTabs.forEach((tab) => {
-      tab.classList.toggle("active", tab.dataset.viewTab === view);
+      const isActive = tab.dataset.viewTab === view;
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
     });
     loadTrace(activeTrace);
   }
@@ -87,7 +110,7 @@ function init(): void {
       .map(
         (trace) => `
       <div class="trace-item" role="option" data-trace-id="${trace.id}"
-           aria-selected="${trace.id === activeTrace.id}">
+           aria-selected="${trace.id === activeTrace.id}" tabindex="0">
         <span class="trace-item-name">${escapeHtml(trace.name)}</span>
         <span class="trace-item-meta">
           <span>${trace.summary?.totalSteps ?? trace.steps.length} steps</span>
@@ -114,6 +137,8 @@ function init(): void {
 
   // --- Load a trace ---
   function loadTrace(trace: Trace): void {
+    updatePageTitle(trace.name);
+
     // Header
     timelineTitle.textContent = trace.name;
     timelineMeta.innerHTML = `
@@ -123,11 +148,18 @@ function init(): void {
       ${trace.summary?.errorCount ? `<span class="timeline-meta-item" style="color:var(--color-error)">${trace.summary.errorCount} error${trace.summary.errorCount > 1 ? "s" : ""}</span>` : ""}
     `;
 
-    // Reset inspector
+    // Reset inspector with styled empty state
     inspectorContent.innerHTML = `
       <div class="inspector-empty">
+        <svg class="inspector-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="18" rx="3"/>
+          <line x1="9" y1="3" x2="9" y2="21"/>
+          <path d="M13 8h4" opacity="0.4"/>
+          <path d="M13 12h4" opacity="0.3"/>
+          <path d="M13 16h2" opacity="0.2"/>
+        </svg>
         <p class="inspector-empty-text">Select a step to inspect</p>
-        <p class="inspector-empty-hint">Use <kbd>j</kbd>/<kbd>k</kbd> to navigate, <kbd>Enter</kbd> to expand</p>
+        <p class="inspector-empty-hint">Use <kbd>j</kbd>/<kbd>k</kbd> to navigate · <kbd>Enter</kbd> to expand</p>
       </div>
     `;
 
@@ -195,6 +227,11 @@ function init(): void {
 
   // --- Wire search trigger ---
   searchTrigger.addEventListener("click", () => openSearch());
+
+  // --- Wire shortcuts button ---
+  if (shortcutsBtn) {
+    shortcutsBtn.addEventListener("click", () => toggleShortcutsPanel());
+  }
 
   // --- Wire export button ---
   if (exportBtn) {
@@ -297,7 +334,8 @@ function init(): void {
       hideShortcutsPanel();
     }
     if (e.key === "t" && !e.ctrlKey && !e.metaKey) {
-      toggleTheme();
+      const newTheme = toggleTheme();
+      showToast({ message: `Switched to ${newTheme} theme`, type: "info", duration: 1500 });
     }
     if (e.key === "1") switchView("timeline");
     if (e.key === "2") switchView("flamegraph");

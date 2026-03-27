@@ -1,19 +1,19 @@
 /* ==========================================================================
-   Agent Replay — Additional Styles
-   Drop zone, file upload, keyboard hints
+   Agent Replay — Additional Styles — Polished Edition
    ========================================================================== */
 
 /* ---------- Drop zone overlay ---------- */
 .drop-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 11, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(9, 9, 11, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 200;
-  animation: overlay-in 150ms ease;
+  animation: overlay-in 200ms ease;
 }
 
 .drop-overlay[hidden] {
@@ -24,23 +24,25 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-5);
   color: var(--color-text-muted);
-  padding: var(--space-10);
+  padding: var(--space-10) 60px;
   border: 2px dashed var(--color-accent);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   background: var(--color-surface);
-  animation: drop-pulse 1.5s ease-in-out infinite;
+  animation: drop-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 40px var(--color-accent-glow);
 }
 
 @keyframes drop-pulse {
-  0%, 100% { border-color: var(--color-accent); }
-  50% { border-color: var(--color-accent-hover); }
+  0%, 100% { border-color: var(--color-accent); box-shadow: 0 0 40px var(--color-accent-glow); }
+  50% { border-color: var(--color-accent-hover); box-shadow: 0 0 60px var(--color-accent-glow); }
 }
 
 .drop-overlay-content svg {
   color: var(--color-accent);
-  opacity: 0.6;
+  opacity: 0.8;
+  animation: float 2s ease-in-out infinite;
 }
 
 .drop-overlay-content p {
@@ -71,21 +73,23 @@
 .view-tabs {
   display: flex;
   gap: 2px;
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 2px;
 }
 
 .view-tab {
   font-size: var(--font-size-xs);
   font-weight: 500;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .view-tab:hover {
@@ -95,8 +99,8 @@
 
 .view-tab.active {
   color: var(--color-text);
-  background: var(--color-bg);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ---------- Flame graph ---------- */
@@ -104,49 +108,90 @@
   font-family: var(--font-mono, monospace);
 }
 
-/* ---------- Loading skeleton ---------- */
+.flame-bar {
+  transition: opacity var(--transition-fast), transform var(--transition-fast) !important;
+}
+
+.flame-bar:hover {
+  opacity: 1 !important;
+  transform: scaleY(1.1);
+  z-index: 1;
+}
+
+/* ---------- Skeleton / shimmer ---------- */
 @keyframes skeleton-pulse {
   0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
 .skeleton {
-  background: var(--color-surface);
+  background: var(--color-surface-raised);
   border-radius: var(--radius-md);
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
-/* ---------- Smooth transitions ---------- */
-.step-card,
-.trace-item,
-.inspector-content {
-  transition: background 0.15s ease, border-color 0.15s ease;
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-raised) 0%,
+    var(--color-surface-overlay) 40%,
+    var(--color-surface-raised) 80%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-md);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Skeleton loader for timeline */
+.skeleton-step {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skeleton-line {
+  height: 10px;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-line-short {
+  width: 40%;
+}
+
+.skeleton-line-medium {
+  width: 65%;
+}
+
+.skeleton-line-long {
+  width: 85%;
 }
 
 /* ---------- Mobile responsive ---------- */
 @media (max-width: 768px) {
-  .app-main {
-    flex-direction: column !important;
-  }
-
-  .sidebar {
-    width: 100% !important;
-    max-height: 200px;
-    border-right: none !important;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .inspector-panel {
-    width: 100% !important;
-    max-height: 40vh;
-    border-left: none !important;
-    border-top: 1px solid var(--color-border);
-  }
-
-  .timeline-panel {
-    min-height: 40vh;
-  }
-
   .view-tabs {
     flex-wrap: wrap;
   }
@@ -172,4 +217,14 @@
   .header-btn kbd {
     display: none;
   }
+}
+
+/* ---------- Heatmap styles ---------- */
+.heatmap-row {
+  transition: background var(--transition-fast), transform var(--transition-fast) !important;
+}
+
+.heatmap-row:hover {
+  background: var(--color-surface-hover) !important;
+  transform: translateX(2px);
 }
